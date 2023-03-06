@@ -52,4 +52,3 @@ This project is not licensed.
 To our family, for whom all the effort is worth it.
 
 To the coding global community, for its efforts to keep knowledge available.
-
