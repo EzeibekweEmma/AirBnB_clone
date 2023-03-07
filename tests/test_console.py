@@ -232,3 +232,74 @@ class TestHBNBCommand(unittest.TestCase):
             self.assertTrue(uid in s)
 
         def test_do_show_error_advanced(self):
+            """Tests show() command with errors."""
+            with patch('sys.stdout', new=StringIO()) as f:
+                HBNBCommand().onecmd(".show()")
+            msg = f.getvalue()[:-1]
+            self.assertEqual(msg, "** class name missing **")
+
+            with patch('sys.stdout', new=StringIO()) as f:
+                HBNBCommand().onecmd("garbage.show()")
+            msg = f.getvalue()[:-1]
+            self.assertEqual(msg, "** class doesn't exist **")
+
+            with patch('sys.stdout', new=StringIO()) as f:
+                HBNBCommand().onecmd("BaseModel.show()")
+            msg = f.getvalue()[:-1]
+            self.assertEqual(msg, "** instance id missing **")
+
+            with patch('sys.stdout', new=StringIO()) as f:
+                HBNBCommand().onecmd('BaseModel.show("6524359")')
+            msg = f.getvalue()[:-1]
+            self.assertEqual(msg, "** no instance found **")
+
+        def test_do_destroy(self):
+            """Tests destroy for all classes."""
+            for classname in self.classes():
+                self.help_test_do_destroy(classname)
+                self.help_test_destroy_advanced(classname)
+
+        def help_test_do_destroy(self, classname):
+            """Helps test the destroy command."""
+            with patch('sys.stdout', new=StringIO()) as f:
+                HBNBCommand().onecmd("create {}".format(classname))
+            uid = f.getvalue()[:-1]
+            self.assertTrue(len(uid) > 0)
+
+            with patch('sys.stdout', new=StringIO()) as f:
+                HBNBCommand().onecmd("destroy {} {}".format(classname, uid))
+            s = f.getvalue()[:-1]
+            self.assertTrue(len(s) == 0)
+
+            with patch('sys.stdout', new=StringIO()) as f:
+                HBNBCommand().onecmd(".all()")
+            self.assertFalse(uid in f.getvalue())
+
+        def test_do_destroy_error(self):
+            """Tests destroy command with errors."""
+            with patch('sys.stdout', new=StringIO()) as f:
+                HBNBCommand().onecmd("destroy")
+            msg = f.getvalue()[:-1]
+            self.assertEqual(msg, "** class name missing **")
+
+            with patch('sys.stdout', new=StringIO()) as f:
+                HBNBCommand().onecmd("destroy garbage")
+            msg = f.getvalue()[:-1]
+            self.assertEqual(msg, "** class doesn't exist **")
+
+            with patch('sys.stdout', new=StringIO()) as f:
+                HBNBCommand().onecmd("destroy BaseModel")
+            msg = f.getvalue()[:-1]
+            self.assertEqual(msg, "** instance id missing **")
+
+            with patch('sys.stdout', new=StringIO()) as f:
+                HBNBCommand().onecmd("destroy BaseModel 6524359")
+            msg = f.getvalue()[:-1]
+            self.assertEqual(msg, "** no instance found **")
+
+        def help_test_destroy_advanced(self, classname):
+            """Helps test the destroy command."""
+            with patch('sys.stdout', new=StringIO()) as f:
+                HBNBCommand().onecmd("create {}".format(classname))
+            uid = f.getvalue()[:-1]
+            self.assertTrue(len(uid) > 0)
