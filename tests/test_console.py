@@ -114,4 +114,121 @@ class TestHBNBCommand(unittest.TestCase):
         self.assertEqual(s, f.getvalue())
 
     def test_do_quit(self):
+        """Tests quit commmand."""
+        with patch('sys.stdout', new=StringIO()) as f:
+            HBNBCommand().onecmd("quit")
+        msg = f.getvalue()
+        self.assertTrue(len(msg) == 0)
+        self.assertEqual("", msg)
+        with patch('sys.stdout', new=StringIO()) as f:
+            HBNBCommand().onecmd("quit garbage")
+        msg = f.getvalue()
+        self.assertTrue(len(msg) == 0)
+        self.assertEqual("", msg)
 
+    def test_do_EOF(self):
+        """Tests EOF commmand."""
+        with patch('sys.stdout', new=StringIO()) as f:
+            HBNBCommand().onecmd("EOF")
+        msg = f.getvalue()
+        self.assertTrue(len(msg) == 1)
+        self.assertEqual("\n", msg)
+        with patch('sys.stdout', new=StringIO()) as f:
+            HBNBCommand().onecmd("EOF garbage")
+        msg = f.getvalue()
+        self.assertTrue(len(msg) == 1)
+        self.assertEqual("\n", msg)
+
+    def test_emptyline(self):
+        """Tests emptyline functionality."""
+        with patch('sys.stdout', new=StringIO()) as f:
+            HBNBCommand().onecmd("\n")
+        s = ""
+        self.assertEqual(s, f.getvalue())
+
+        with patch('sys.stdout', new=StringIO()) as f:
+            HBNBCommand().onecmd("                  \n")
+        s = ""
+        self.assertEqual(s, f.getvalue())
+
+    def test_do_create(self):
+        """Tests create for all classes."""
+        for classname in self.classes():
+            self.help_test_do_create(classname)
+
+    def help_test_do_create(self, classname):
+        """Helper method to test the create commmand."""
+        with patch('sys.stdout', new=StringIO()) as f:
+            HBNBCommand().onecmd("create {}".format(classname))
+        uid = f.getvalue()[:-1]
+        self.assertTrue(len(uid) > 0)
+        key = "{}.{}".format(classname, uid)
+        with patch('sys.stdout', new=StringIO()) as f:
+            HBNBCommand().onecmd("all {}".format(classname))
+        self.assertTrue(uid in f.getvalue())
+
+    def test_do_create_error(self):
+        """Tests create command with errors."""
+        with patch('sys.stdout', new=StringIO()) as f:
+            HBNBCommand().onecmd("create")
+        msg = f.getvalue()[:-1]
+        self.assertEqual(msg, "** class name missing **")
+
+        with patch('sys.stdout', new=StringIO()) as f:
+            HBNBCommand().onecmd("create garbage")
+        msg = f.getvalue()[:-1]
+        self.assertEqual(msg, "** class doesn't exist **")
+
+    def test_do_show(self):
+        """Tests show for all classes."""
+        for classname in self.classes():
+            self.help_test_do_show(classname)
+            self.help_test_show_advanced(classname)
+
+    def help_test_do_show(self, classname):
+        """Helps test the show command."""
+        with patch('sys.stdout', new=StringIO()) as f:
+            HBNBCommand().onecmd("create {}".format(classname))
+        uid = f.getvalue()[:-1]
+        self.assertTrue(len(uid) > 0)
+
+        with patch('sys.stdout', new=StringIO()) as f:
+            HBNBCommand().onecmd("show {} {}".format(classname, uid))
+        s = f.getvalue()[:-1]
+        self.assertTrue(uid in s)
+
+        def test_do_show_error(self):
+            """Tests show command with errors."""
+            with patch('sys.stdout', new=StringIO()) as f:
+                HBNBCommand().onecmd("show")
+            msg = f.getvalue()[:-1]
+            self.assertEqual(msg, "** class name missing **")
+
+            with patch('sys.stdout', new=StringIO()) as f:
+                HBNBCommand().onecmd("show garbage")
+            msg = f.getvalue()[:-1]
+            self.assertEqual(msg, "** class doesn't exist **")
+
+            with patch('sys.stdout', new=StringIO()) as f:
+                HBNBCommand().onecmd("show BaseModel")
+            msg = f.getvalue()[:-1]
+            self.assertEqual(msg, "** instance id missing **")
+
+            with patch('sys.stdout', new=StringIO()) as f:
+                 HBNBCommand().onecmd("show BaseModel 6524359")
+            msg = f.getvalue()[:-1]
+            self.assertEqual(msg, "** no instance found **")
+
+        def help_test_show_advanced(self, classname):
+            """Helps test .show() command."""
+            with patch('sys.stdout', new=StringIO()) as f:
+                HBNBCommand().onecmd("create {}".format(classname))
+            uid = f.getvalue()[:-1]
+            self.assertTrue(len(uid) > 0)
+
+            with patch('sys.stdout', new=StringIO()) as f:
+                HBNBCommand().onecmd('{}.show("{}")'.format(classname, uid))
+            s = f.getvalue()
+            self.assertTrue(uid in s)
+
+        def test_do_show_error_advanced(self):
