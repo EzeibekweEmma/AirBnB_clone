@@ -46,3 +46,12 @@ class BaseModel():
         """Save an instance and set the updated time"""
         self.updated_at = datetime.now()
         models.storage.save()
+
+    def to_dict(self):
+        """Returns the attributes of the instance as a dict"""
+        var = self.__dict__.copy()
+
+        var['__class__'] = self.__class__.__name__
+        var['created_at'] = self.created_at.isoformat()
+        var['updated_at'] = self.updated_at.isoformat()
+        return var
